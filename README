@@ -1,0 +1,11 @@
+Code and Notes for WebSocket I/O with Ruby EventMachine
+- October 8th, 2011 - 1:45, Scott Haines
+
+Covering
+1. RVM - using rvm gemsets with .rvmrc (http://beginrescueend.com/) - triggering use of custom rvm gemsets from within github repo
+2. Gemfile (for bundle install) (gem install bundler)
+3. Ruby EventMachine (http://eventmachine.rubyforge.org/EventMachine.html)
+4. em-websocket (gem), em-http-request (gem) usage, patterns
+5. JSON object serialization
+6. Concurrent Programming in Ruby
+7. Autonomous Communication

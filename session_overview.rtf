@@ -1,0 +1,30 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138
+{\fonttbl\f0\fnil\fcharset0 Calibri;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww24620\viewh13060\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\b\fs28 \cf0 Overview
+\b0  In this session, I will cover using Ruby EventMachine to create a real-time - event driven - web application. This session will cover setting up an EventMachine server, Registering endpoints (unique websocket connections), and handling live or autonomous communication. \
+
+\b Session will cover following ruby technologies
+\b0  \
+1. RVM - using rvm gemsets with .rvmrc (http://beginrescueend.com/) - triggering use of custom rvm gemsets from within github repo\
+2. Gemfile (for bundle install) (gem install bundler)\
+3. Ruby EventMachine (http://eventmachine.rubyforge.org/EventMachine.html)\
+4. em-websocket (gem), em-http-request (gem) usage, patterns\
+5. JSON object serialization\
+6. Concurrent Programming in Ruby\
+7. Autonomous Communication \
+
+\b Session Application
+\b0  \
+During the course of this session, we will build a real-time, multi-threaded communications platform that can connect to any socket based endpoint, including another user, or HTTP API, or custom endpoint, or protocol. \
+- Utilize html5 websockets and Json messaging to build an event-driven communications platform \
+- Drive socket based communication utilizing the Observer and Reactor patterns\
+- Use blocks (&block) to deliver http responses - from any 3rd party rest API - from your eventmachine server, back down through a websocket to the user who generated the request, or on time-based cycles.\
+- Learn how to use Modules (mix-ins)\
+- Build configuration files with YAML\
+- Accept Command-Line arguments using ARGV\
+- Have fun with other Ruby geeks!}
