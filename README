@@ -9,3 +9,11 @@ Covering
 5. JSON object serialization
 6. Concurrent Programming in Ruby
 7. Autonomous Communication
+
+Pre-Requisites 
+1. rvm
+
+Installing
+1. accept the .rvmrc
+2. sudo gem install bundler
+3. bundle install
