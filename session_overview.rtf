@@ -27,4 +27,75 @@ During the course of this session, we will build a real-time, multi-threaded com
 - Learn how to use Modules (mix-ins)\
 - Build configuration files with YAML\
 - Accept Command-Line arguments using ARGV\
-- Have fun with other Ruby geeks!}
+- Have fun with other Ruby geeks!\
+\
+
+\b 1. RVM
+\b0 \
+--------\
+
+\b IRC Channel
+\b0 : #rvm\
+\
+
+\b Find available packages
+\b0 \
+rvm list known\
+\
+
+\b Install a package\
+
+\b0 rvm install ruby-1.9.2-p290\
+\
+
+\b Create a gemset
+\b0 \
+rvm gem set create <gemset_name>\
+\
+
+\b Deleting RVM
+\b0 \
+(removing rvm - for snow leopard to lion upgrade)\
+sudo rm -rf /Users/<your_name>/.rvm\
+\
+
+\b Reload RVM Session (bash)
+\b0 \
+rvm reload\
+\
+
+\b Update RVM Core
+\b0 \
+rvm update\
+\
+-----------------------------\
+Usage: \
+( manually )\
+1. rvm use 
+\b ruby-1.9.2-p290
+\b0 \
+2. rvm gemset create 
+\b svcc\
+
+\b0 3. ruby-1.9.2-p290@svcc ( gemset)\
+\
+( .rvmrc )\
+1. rvm use ruby-1.9.2-p290\
+2. rvm gemset create svcc\
+3. touch /app_root/.rvmrc\
+4. vi /app_root/.rvmrc\
+     rvm use ruby-1.9.2-p290@svcc\
+5. cd ..\
+6. cd back into directory and you'll see a prompt to accept and use the gem set\
+==============================================================================\
+= NOTICE                                                                     =\
+==============================================================================\
+= RVM has encountered a new or modified .rvmrc file in the current directory =\
+= This is a shell script and therefore may contain any shell commands.       =\
+=                                                                            =\
+= Examine the contents of this file carefully to be sure the contents are    =\
+= safe before trusting it! ( Choose v[iew] below to view the contents )      =\
+==============================================================================\
+Do you wish to trust this .rvmrc file? (/Users/scotthai/git/svcc/.rvmrc)\
+> yes\
+> Using /Users/scotthai/.rvm/gems/ruby-1.9.2-p290 with gemset svcc}
