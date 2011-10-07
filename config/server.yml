@@ -1,5 +1,8 @@
 application:
   port: 5000
   
+  websocket:
+    port: 7000
+  
   rawdata:
       max_byte_size: 200
