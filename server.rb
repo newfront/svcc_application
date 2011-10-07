@@ -8,7 +8,8 @@ $: << $APP_ROOT = File.expand_path(File.dirname(__FILE__))
 # 'mechanize'
 requires = [
   'em-websocket',
-  'cgi','em-http-request',
+  'cgi',
+  'em-http-request',
   'sinatra/base',
   'thin',
   'logger',
@@ -17,6 +18,7 @@ requires = [
   'socket',
   'pp',
   'json',
+  'digest/md5',
   'libs/conductor',
   'libs/message',
   'libs/channels',
