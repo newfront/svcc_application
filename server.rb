@@ -52,4 +52,42 @@ EventMachine.run do
     rasie e
   end
   
+  # setup web socket connections ( in memory )
+  ($ws_connections ||= {})
+  
+  # setup some callbacks
+  $new_messages = EventMachine.Callback{|msg|
+    puts (msg) 
+    puts $ws_connections.size.to_s
+    unless $ws_connections.size == 0
+      $ws_connections.each {|connection|
+        connection.send(msg)
+      }
+    end
+  }
+  
+  # web socket server
+  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => $conf.server.application.websocket.port) do |ws|
+    
+    # same as initialize / post_init
+    ws.onopen {
+      puts "WebSocket connection open"
+      # publish message to the client
+      ws.send "connected"
+      @user = ws
+      $ws_connections << ws
+    }
+    # same as unbind
+    ws.onclose { 
+      puts "Connection closed" 
+      $ws_connections.delete(ws)
+    }
+    # same as receive data
+    ws.onmessage { |msg|
+      puts "Recieved message: #{msg}"
+      puts msg.inspect
+      #ws.send "#{msg}"
+    }
+  end
+  
 end
