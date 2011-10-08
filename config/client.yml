@@ -1,0 +1,4 @@
+application:
+  host: '127.0.0.1'
+  port: 5000
+  auth_key: "99-0-KK-9453-8322"
