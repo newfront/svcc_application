@@ -1,7 +1,13 @@
 class Conductor < EventMachine::Connection
+  
+  # runs automatically on object instantiation
   def initialize(*args)
-    # stores the connections
-    (@@connections ||= Hashie::Mash.new)
+    # setup some global variables
+    @connection = Hashie::Mash.new
+    # has this user registered?
+    @registered = false
+    # subscribed channels
+    @channels = {}
   end
   
   # Runs immediately following the constructor (initialize)
@@ -9,15 +15,13 @@ class Conductor < EventMachine::Connection
   def post_init
     puts "connection established"
     
-    # @attribute em_user_connection_id
-    @connection = Hashie::Mash.new
-    
     # store the eventmachine connection object id
     @connection.id = self.object_id
-    
   end
   
   def receive_data(data)
+    
+    # parse out the data...
     data = Message.parse(data)
     # Event Dispatcher
     dispatch_event(data)
@@ -25,24 +29,40 @@ class Conductor < EventMachine::Connection
   
   # read packet params and respond accordingly
   def dispatch_event(data)
-    puts "Event Dispatcher"
-    puts data.inspect 
+    puts "Event Dispatcher Invoked"
     
-    #puts Message::send(data)
-    #unless !data.has_key?("type")
-    #  case data.type
-    #    when "message"
-    #      #send_message(to,from,message)
-    #      send_message(data.to,data.from,data.message.to_s)
-    #    when "register"
-    #      register(data)
-    #  end
-    #else
-    #  self.close_connection_after_writing
-    #end
+    unless !data.has_key? "type"
+      puts "message type #{data['type'].to_s}"
+      
+      # switch event action based on message type
+      case data['type']
+        when "register"
+          puts "user wishes to register. check auth_key first"
+          self.register(data)
+        when "subscribe"
+          puts "user wishes to subscribe to a channel"
+          self.subscribe(data)
+        when "message"
+          # message: to:channel,from:uuid,type:message,text:message,visibility:private
+          puts "user wishes to send a message"
+      end
+      
+    else
+      # if the socket is connected but no post_init data was sent
+      # then we want to kill the connection, since this is probably an unauthorized
+      # user....
+      
+      puts "data doesn't have key type"
+      self.close_connection_after_writing
+    end
       
   end
   
+  # have user subscribe to a channel
+  def subscribe(data)
+    # @channels (local tracker)
+    # push channel name into subscribe list, if and only if not already in subscribe list
+  end
   
   def send_message(data)
     
@@ -58,69 +78,59 @@ class Conductor < EventMachine::Connection
   end
   
   # Register an entity on the Conductor Server
-  #  uuid, first_name, last_name, software_key, type, application
+  #  uuid, first_name, last_name, auth_key, type
   #  TODO need to marshal dump and load EventMachine instance for messaging...
   
   def register(data)
-    
-    #@user = data
-    #@user.event_machine_connection_id = @em_user_connection_id
-    #@user.event_machine_connection = self
-    #puts "uuid: #{@user.uuid}"
-    #puts "first_name: #{@user.first_name}"
-    #puts "last_name: #{@user.last_name}"
-    #puts "software_key: #{@user.software_key}"
-    #puts "type: #{@user.type}"
-    #puts "application: #{@user.application}"
-    #puts "identifier (em): #{@user.event_machine_connection_id}"
+    unless @registered
+      @user = Hashie::Mash.new(data)
+      @user.event_machine_connection_id = @connection.id
+      @user.event_machine_connection = self
+      puts "uuid: #{@user.uuid}"
+      puts "first_name: #{@user.first_name}"
+      puts "last_name: #{@user.last_name}"
+      puts "software_key: #{@user.auth_key}"
+      puts "type: #{@user.type}"
+      puts "identifier (em): #{@user.event_machine_connection_id.to_s}"
   
-    # store user in global (update to mongodb)
-    #$connections.store(@user.uuid,@user)
-    #puts $connections.inspect
+      # store user in global hash - (this could also be in mongodb,mysql,redis,etc)
+      $connections.store(@user.uuid,@user)
+      puts $connections.inspect
     
-    #user = User.new
-    #user.uuid = @user.uuid
-    #user.first_name = @user.first_name
-    #user.last_name = @user.last_name
-    #user.software_key = @user.software_key
-    #user.type = @user.type
-    #user.application = @user.application
-    #unless !user.save
-      # send back 200 OK response
-    #  puts "registration successful"
-    #  @registered = true
-    #else
-    #  @registered = false
-    #  puts "registration unsuccessful"
-    #end
+      unless !$connections.has_key? @user.uuid
+        puts "user is registered and in $connections hash"
+        @registered = true
+        $ws_notifier.call("#{@user.uuid} just registered on the server")
+      else
+        puts "epic fail. shutting down now"
+      end
+    else
+      puts "user is already registered. ignoring re-registration"
+    end
     
   end
   
   # remove the user from memory
   def unregister(uuid)
-    
-    #if User.where(uuid: "#{uuid.to_s}").delete
-    #  puts "(unregister) User is deleted: #{uuid.to_s}"
-    #else
-    #  puts "(unregister) Error. User couldn't be deleted"
-    #end
-    
+    if $connections.has_key? (@user.uuid)
+      $connections.delete(@user.uuid)
+    end
   end
   
   # called automatically when the Socket connection is disconnected (remote connection)
   def unbind
     puts "connection #{@connection.id.to_s} unbound"
-    #begin
-    #  unless !@registered
-    #    self.unregister(@user.uuid)
-    #    $connections.delete(@user.uuid) if $connections.has_key? (@user.uuid)
-    #  else
-    #    puts "Never registered. So don't try to kill connection data"
-    #  end
-    #rescue
-    #  puts "Error (unbind). Couldn't delete from hash"
-    #end
-    #puts "Person is no longer connected"
+    begin
+      unless !@registered
+        self.unregister(@user.uuid)
+        $ws_notifier.call("#{@user.uuid} just left the server")
+      else
+        puts "Never registered. So don't try to kill connection data"
+      end
+    rescue
+      puts "Error (unbind). Couldn't delete from hash"
+    end
+    puts "Person is no longer connected"
   end
   
 end
