@@ -1,12 +1,23 @@
+#!/usr/bin/env ruby
+
+# get local paths to work
+$: << File.join(File.dirname(__FILE__), "")
+$: << $APP_ROOT = File.expand_path(File.dirname(__FILE__))
+
 requires = [
   'eventmachine',
   'hashie',
   'socket',
   'pp',
   'json',
+  'yaml',
   'digest/md5'
   ]
 requires.each {|dependency| require dependency}
+
+@conf = Hashie::Mash.new
+# load in configuration
+@conf.client = Hashie::Mash.new(YAML.load_file(File.join($APP_ROOT,'config','client.yml')))
 
 # Base Connection class for each individual client
 
@@ -40,7 +51,7 @@ connection = Hashie::Mash.new
 connection.uuid = Digest::MD5.hexdigest((Time.now).to_s + Random.rand(999999).to_s)
 connection.first_name = "Scott"
 connection.last_name = "Haines"
-connection.software_key = "99-0-KK-9453-8322"
+connection.auth_key = @conf.client.application.auth_key
 connection.type = "register"
 
 EventMachine.run do
