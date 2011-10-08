@@ -1,0 +1,37 @@
+.irc_viewer
+{
+	margin:10px;
+	padding:5px;
+	border:1px solid #cccccc;
+	height:360px;
+	position:relative;
+	background:#cbcbcb;
+}
+
+.irc_contents
+{
+	background: #ffffff;
+	color: #2b2b2b;
+	margin:5px;
+	padding:5px;
+	width:auto;
+	border:1px solid #eeeeee;
+	height: 300px;
+	display:block;
+}
+
+.irc_btn
+{
+	width:65px;
+}
+
+.sinput{
+	border:1px solid #999;
+	background:#ededed;
+	margin-left:4px;
+	padding:5px;
+}
+
+.lrg{
+	width: 75%;
+}
