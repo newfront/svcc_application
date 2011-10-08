@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf8">
+  <title>API</title>
+  <link href="/stylesheets/main.css" rel="stylesheet"/>
+  <link href="/stylesheets/irc.css" rel="stylesheet"/>
+  <% unless self.env["REQUEST_PATH"] == "/" %>
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/swfobject.js"></script>
+  <script type="text/javascript" src="/js/FABridge.js"></script>
+  <script type="text/javascript" src="/js/web_socket.js"></script>
+  <script type="text/javascript" src="/js/actions.js"></script>
+  <% end %>
+</head>
+<body>
+  
+  <header>
+    <hgroup>
+      <h1>SVCC WS-IRC</a></h1>
+      <h2></h2>
+    </hgroup>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="/realtime/irc">IRC</a></li>
+      <li><a href="/system/realtime/log">Log</a></li>
+    </ul>
+  </nav>
+  
+  <div id="main">
+    <% unless @error.nil? %>
+    <div class="notice">
+      <p><span class="err"><%= @error[:type] %></span></p>
+    </div>
+    <% end %>
+    <% unless @notice.nil? %>
+    <div class="notice">
+      <p><span class="success"><%= @notice[:type] %>, <%= @notice[:details] %></span></p>
+    </div>
+    <% end %>
+    <%= yield %>
+  </div>
+  
+  <footer class="default">
+    <p>SVCC 2011 - WebSocket I/O EventMachine <%= @year %></p>
+  </footer>
+</body>
+</html>
