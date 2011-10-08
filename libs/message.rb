@@ -21,7 +21,7 @@ module Message
       m = Hashie::Mash.new
       m.code = !params[:code].nil? ? params[:code] : 200
       m.type = !params[:type].nil? ? params[:type] : 'default'
-      m.text = !message.nil? ? message.strip : 'text undefined'
+      m.text = !message.nil? ? message.to_s.strip : 'text undefined'
       return m.to_json
     rescue ArgumentError => e
       puts e.to_s

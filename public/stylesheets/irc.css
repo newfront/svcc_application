@@ -6,6 +6,7 @@
 	height:360px;
 	position:relative;
 	background:#cbcbcb;
+	overflow:auto;
 }
 
 .irc_contents
@@ -34,4 +35,16 @@
 
 .lrg{
 	width: 75%;
+}
+
+ul li
+{
+	list-style-type:none;
+}
+
+.message
+{
+	padding:3px;
+	margin-bottom:1px;
+	background:#eeeeee;
 }

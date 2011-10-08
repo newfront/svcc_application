@@ -100,7 +100,7 @@ class Conductor < EventMachine::Connection
       unless !$connections.has_key? @user.uuid
         puts "user is registered and in $connections hash"
         @registered = true
-        $ws_notifier.call("#{@user.uuid} just registered on the server")
+        $ws_notifier.call("#{@user.uuid} just registered on the server","connection")
       else
         puts "epic fail. shutting down now"
       end
@@ -123,7 +123,7 @@ class Conductor < EventMachine::Connection
     begin
       unless !@registered
         self.unregister(@user.uuid)
-        $ws_notifier.call("#{@user.uuid} just left the server")
+        $ws_notifier.call("#{@user.uuid} just left the server","disconnection")
       else
         puts "Never registered. So don't try to kill connection data"
       end

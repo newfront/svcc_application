@@ -58,19 +58,31 @@ EventMachine.run do
   end
   
   # setup some callbacks
-  $ws_notifier = EventMachine.Callback{|msg|
+  $ws_notifier = EventMachine.Callback{|msg,type|
+    # actual message types can be abstracted out ( fun side project )
+    # |msg,type,....|
+    
     puts (msg) 
+    puts type
     puts $ws_connections.size.to_s
     unless $ws_connections.size == 0
       $ws_connections.each {|connection|
         #puts connection.inspect
         #connection[0] = user uuid
         #connection[1] = user web socket object
-        connection[1].send(msg)
+        if type == "register"
+          connection[1].send(Message::format(msg,{:code=>200,:type=>"connection"}))
+        elsif type == "message"
+          connection[1].send(Message::format(msg,{:code=>200,:type=>"message"}))
+        elsif(type == "disconnection")
+          connection[1].send(Message::format(msg,{:code=>200,:type=>"disconnection"}))
+        end
       }
     end
   }
   
+  # store long-lived pipes in global
+  ($ws_to_em_connections ||= {})
   # setup web socket connections ( in memory )
   ($ws_connections ||= {})
   
@@ -81,36 +93,38 @@ EventMachine.run do
     ws.onopen {
       puts "WebSocket connection open"
       # publish message to the client
-      @user = ws
+      @user = Hashie::Mash.new
+      @user.connection = Hashie::Mash.new
       
+      # build one time use connection data
       
-      
-      connection = Hashie::Mash.new
-      connection.uuid = Digest::MD5.hexdigest((Time.now).to_s + Random.rand(999999).to_s)
-      connection.first_name = "Temp"
-      connection.last_name = "User"
-      connection.auth_key = $conf.server.application.connection.auth_key
-      connection.type = "register"
+      @user.connection.uuid = Digest::MD5.hexdigest((Time.now).to_s + Random.rand(999999).to_s)
+      @user.connection.first_name = "Temp"
+      @user.connection.last_name = "User"
+      @user.connection.auth_key = $conf.server.application.connection.auth_key
+      @user.connection.type = "register"
       
       # send connection details back to user ( what is their uuid )
-      ws.send(Message::format(connection.uuid,{:code=>200,:type=>"uuid"}))
+      ws.send(Message::format(@user.connection.uuid,{:code=>200,:type=>"uuid"}))
       
       # connect the websocket to a traditional socket
-      @em = EventMachine::connect('127.0.0.1',5000, ConductorHandler, connection)
-      
-      $ws_connections.store(connection.uuid,ws)
+      $ws_to_em_connections[@user.connection.uuid] = EventMachine::connect('127.0.0.1',5000, ConductorHandler, @user.connection)
+      $ws_connections.store(@user.connection.uuid,ws)
       ws.send(Message::format("registering",{:code=>200,:type=>"message"}))
     }
     # same as unbind
     ws.onclose { 
-      puts "Connection closed" 
+      puts "===================\nWEB SOCKET Connection closed\n===================\n"
+      puts @user.inspect 
       $ws_connections.delete(ws)
+      #$ws_to_em_connections.delete(@user.connection.uuid)
     }
     # same as receive data
     ws.onmessage { |msg|
       puts "Recieved message: #{msg}"
       puts msg.inspect
-      #ws.send "#{msg}"
+      $ws_notifier.call(msg,"message")
+      #ws.send(Message::format(msg,{:code=>200,:type=>"message"}))
     }
   end
   

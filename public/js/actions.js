@@ -9,10 +9,13 @@ $(document).ready(function(){
     $("#debug").append("<p>" +  str); 
   };
   
-  var user;
+  var User = {};
   var http;
   var ws_url;
-  ws_url = "ws://"+server;
+	
+	var uuid = Math.floor(Math.random()*9999);
+
+  ws_url = "ws://"+server+'/'+uuid;
 
 	// irc input item
 	// can send "typing"
@@ -29,9 +32,12 @@ $(document).ready(function(){
 		console.log("button has been clicked");
 		var msg = $("#irc_input_txt").val();
 		http.send(msg);
-		msg.delete
+		delete msg
 	});
 	
+	/**
+	 * GUI related actions
+  */
 	var GUI = {
 		loading: function(bool)
 		{
@@ -41,27 +47,53 @@ $(document).ready(function(){
 			}
 			else
 			{
-				$("#loader").show();
+				$("#loader").hide();
 			}
 		},
-		update_data: function(div,data)
+		update_gui: function(obj_id,message)
 		{
-			
+			var contents = "<div class='message'>";
+			contents += "<ul class='message'>";
+			contents += "<li>"+message+"</li>";
+			contents += "</ul>";
+			contents += "</div>";
+			$("."+obj_id).prepend(contents);
+			delete contents;
 		}
 	};
   
   http = new WebSocket(ws_url)
   
   http.onmessage = function(evt) { 
-    console.log(evt);
-		console.log(JSON.parse(evt));
-		if(evt.data)
-    if(evt.data === "connected")
-		{
-			GUI.loading(false);
-		}
+    //console.log(evt);
+		//console.log(evt.data);
+		var message = evt.data;
+		//console.log(typeof message);
+		var msg_p = JSON.parse(message);
+		//console.log(msg_p);
 		
-    $("#msg").prepend(evt.data);
+		if(msg_p.code === 200)
+		{
+			if(msg_p.type === "message")
+			{
+				GUI.update_gui("irc_contents",msg_p.text);
+			}
+			else if(msg_p.type === "uuid")
+			{
+				User.uuid = msg_p.text;
+				console.log(User);
+				GUI.loading(false);
+				GUI.update_gui("irc_contents","your registered with uuid of: "+User.uuid);
+			}
+			else if(msg_p.type === "connection")
+			{
+				
+			}
+		}
+		else
+		{
+			// error or other
+		}
   };
   
   http.onclose = function() { 
