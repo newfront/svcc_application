@@ -118,6 +118,7 @@ EventMachine.run do
       puts @user.inspect 
       $ws_connections.delete(ws)
       #$ws_to_em_connections.delete(@user.connection.uuid)
+      $ws_notifier.call("user left","message")
     }
     # same as receive data
     ws.onmessage { |msg|
