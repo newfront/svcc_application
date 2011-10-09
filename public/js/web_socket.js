@@ -250,7 +250,7 @@
     if (!WebSocket.__swfLocation) {
       //console.error("[WebSocket] set WebSocket.__swfLocation to location of WebSocketMain.swf");
       //return;
-      WebSocket.__swfLocation = "js/WebSocketMain.swf";
+      WebSocket.__swfLocation = "/js/WebSocketMain.swf";
     }
     var container = document.createElement("div");
     container.id = "webSocketContainer";
